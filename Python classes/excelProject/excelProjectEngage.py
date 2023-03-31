@@ -409,7 +409,7 @@ def sessionMenu():
 
             #Load in all students
             wr = wb["MappingCourseTrainee"]
-            for i in range(1, ws.max_row+1):
+            for i in range(1, wr.max_row+1):
                 if(wr.cell(row=i,column=1).value==classID):
                     new_row = (wr.cell(row=i,column=2).value, "Present")
                     ws.append(new_row)
@@ -451,7 +451,7 @@ def sessionMenu():
 
             ws = wb[classID + " " + sessionDate]
             wr = wb["ListOfTrainees"]
-            for i in range(2, ws.max_row+1):
+            for i in range(2, wr.max_row+1):
                 index = getIndex(ws.cell(row=i, column=1).value, "ListOfTrainees")
                 studentName = wr.cell(row=index, column=2).value
                 print("Student:",studentName,ws.cell(row=i,column=2).value)
@@ -479,6 +479,7 @@ def sessionMenu():
             for x in range (0,len(students)):
                 if (students[x] in studentIDList):
                     ws.cell(row=2+x, column=2, value = "Absent")
+                    wb.save("excelProjectDB.xlsx")
 
 
         elif (ch == "9"):
