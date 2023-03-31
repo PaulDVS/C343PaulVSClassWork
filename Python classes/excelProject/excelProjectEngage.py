@@ -196,6 +196,7 @@ def courseMenu():
     while (ch != "9"):
         print("Course Menu: ")
         print("1: Add Course, 2: Update Course")
+        print("4: Add Course to a Manager")
         print("9: End")
         print("Please enter your choice: ")
         ch = input()
@@ -225,6 +226,29 @@ def courseMenu():
                 updateCourse.updateCourse()
             else:
                 print("Error, ID not in use")
+
+        elif (ch == "4"):
+            courseID = input("Please enter course's id: ")
+            index = getIndex(courseID, "CourseDetails")
+            if (index == -1):
+                print("Error, Course doesn't exist")
+                continue
+
+            index = getIndex(courseID, "MappingCourseManager")
+            if (index != -1):
+                print("Error, Course already has a Manager")
+                continue
+
+            managerID = input("Please enter the Manager's email: ")
+            index = getIndex(managerID, "ManagerDetails")
+            if (index == -1):
+                print("Error, Manager doesn't exist")
+                continue
+
+            ws = wb["MappingCourseManager"]
+            new_row = (courseID, managerID)
+            ws.append(new_row)
+            wb.save("excelProjectDB.xlsx")
 
         elif (ch == "9"):
             print("Returning to main")
@@ -364,6 +388,12 @@ def managerMenu():
             ws.delete_rows(index, 1)
             wb.save("excelProjectDB.xlsx")
 
+            ws = wb["MappingCourseManager"]
+            for i in range(1, ws.max_row + 1):
+                if (ws.cell(row=i, column=2).value == id):
+                    ws.delete_rows(i, 1)
+                    wb.save("excelProjectDB.xlsx")
+
         elif (ch == "9"):
             print("Returning to main")
 
@@ -384,8 +414,8 @@ def sessionMenu():
         print()
 
         if (ch == "1"):
-            sessionDate = input("Please enter the date of the session:")
-            classID = input("Please enter the id of the class of the session:")
+            sessionDate = input("Please enter the date of the session: ")
+            classID = input("Please enter the id of the class of the session: ")
             index = getIndex(classID, "CourseDetails")
             if (index == -1):
                 print("Error, class doesn't exist")
@@ -399,8 +429,8 @@ def sessionMenu():
             wb.create_sheet(classID + " " + sessionDate)
             wb.save("excelProjectDB.xlsx")
 
-            startTime = input("Please enter the start time of the session:")
-            endTime = input("Please enter the end time of the session:")
+            startTime = input("Please enter the start time of the session: ")
+            endTime = input("Please enter the end time of the session: ")
 
             ws = wb[classID+" "+sessionDate]
             new_row = (startTime, endTime)
@@ -416,8 +446,8 @@ def sessionMenu():
                     wb.save("excelProjectDB.xlsx")
 
         elif(ch == "2"):
-            sessionDate = input("Please enter the date of the session:")
-            classID = input("Please enter the id of the class of the session:")
+            sessionDate = input("Please enter the date of the session: ")
+            classID = input("Please enter the id of the class of the session: ")
             index = getIndex(classID, "CourseDetails")
             if (index == -1):
                 print("Error, class doesn't exist")
@@ -451,14 +481,14 @@ def sessionMenu():
 
             ws = wb[classID + " " + sessionDate]
             wr = wb["ListOfTrainees"]
-            for i in range(2, wr.max_row+1):
+            for i in range(2, ws.max_row+1):
                 index = getIndex(ws.cell(row=i, column=1).value, "ListOfTrainees")
                 studentName = wr.cell(row=index, column=2).value
                 print("Student:",studentName,ws.cell(row=i,column=2).value)
 
         elif (ch == "3"):
-            sessionDate = input("Please enter the date of the session:")
-            classID = input("Please enter the id of the class of the session:")
+            sessionDate = input("Please enter the date of the session: ")
+            classID = input("Please enter the id of the class of the session: ")
             index = getIndex(classID, "CourseDetails")
             if (index == -1):
                 print("Error, class doesn't exist")
@@ -480,6 +510,22 @@ def sessionMenu():
                 if (students[x] in studentIDList):
                     ws.cell(row=2+x, column=2, value = "Absent")
                     wb.save("excelProjectDB.xlsx")
+
+            #Print email to manager
+            absences = 0
+            for i in range(2, ws.max_row+1):
+                if(ws.cell(row=i, column=2).value=="Absent"):
+                    absences += 1
+
+            index = getIndex(classID, "MappingCourseManager")
+            if(index!=-1):
+                ws = wb["MappingCourseManager"]
+                managerEmail = ws.cell(row=index, column=2).value
+
+                print()
+                print("#Email to " + managerEmail + "#")
+                print("Session:",sessionDate,"of Class:",classID)
+                print("Students Present:",len(students)-absences, "Absences:",absences)
 
 
         elif (ch == "9"):
